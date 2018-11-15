@@ -16,41 +16,9 @@ https://github.com/jboynyc/cmus_app
 
 
 from optparse import OptionParser
-try:
-    from configparser import ConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser as ConfigParser
 from bottle import abort, post, request, response, route, run, view, static_file
 from sh import cmus_remote, ErrorReturnCode_1
 
-
-class ConfigFileNotFound(IOError):
-    '''Raised when the specified config file does not exist or is empty.'''
-    pass
-
-
-class MissingSetting(Exception):
-    '''Raised when the config file is missing a required setting.'''
-    pass
-
-
-def read_config(config_file):
-    r = {}
-    try:
-        config_parser = ConfigParser(inline_comment_prefixes=';')
-    except TypeError:
-        config_parser = ConfigParser()
-    n = config_parser.read(config_file)
-    if not len(n):
-        raise ConfigFileNotFound(config_file)
-    section = 'cmus_app'
-    fields = ['cmus_host', 'cmus_passwd', 'app_host', 'app_port']
-    for field in fields:
-        try:
-            r[field] = config_parser.get(section, field)
-        except:
-            raise MissingSetting(field)
-    return r
 
 
 @route('/')
@@ -113,8 +81,7 @@ def favicon():
 
 if __name__ == '__main__':
     option_parser = OptionParser()
-    option_parser.add_option('-f', '--config', dest='config_file',
-                             help='Location of configuration file.')
+
     option_parser.add_option('-c', '--cmus-host', dest='cmus_host',
                              help='Name of cmus host.',
                              default='localhost')
