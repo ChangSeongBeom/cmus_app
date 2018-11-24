@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/static/kube.min.css"/>
     <link rel="stylesheet" type="text/css" href="/static/font-awesome.min.css"/>
+    <link rel="stylesheet" type="text/css" href="static/custom.css"/>
+
     <style type="text/css">
         .wrapper {
             width: 940px;
@@ -61,9 +63,14 @@
 </head>
 <body>
 <div class="wrapper">
-
-<div id="status"></div>
-
+ <div id="playlist-box">
+                <div id="playlist">
+                        Playlist Viewer
+                </div>
+                <div id="playlist-count">
+                        <p id="playlist-count" style="margin-bottom: 0px">Total music : 0</p>
+                </div>
+        </div>
 <div class="controls">
 
     <span class="btn-group">
@@ -78,13 +85,15 @@
         <button class="cmd-btn btn" title="Reduce Volume"><i class="icon-volume-down"></i></button>
         <button class="cmd-btn btn" title="Increase Volume"><i class="icon-volume-up"></i></button>
     </span>
-
+    <button class="btn" title="Playlist" onclick="getPlaylist()">
+        <p id="text">Playlist</p>
+    </button>
     <button class="status-btn btn btn-round" title="Update Status"><i class="icon-info-sign"></i></button>
 
 </div>
 
 <div id="result"></div>
-
+<div id="status"></div>
 <footer>
     <p class="small gray-light"><i class="icon-play-circle"></i> This is <code>cmus</code> running on {{host}}.</p>
 </footer>
@@ -92,21 +101,57 @@
 </div>
 <script src="/static/zepto.min.js"></script>
 <script type="text/javascript">
+    function getPlaylist(){
+        $.ajax({type: 'GET', url: '/playlist', context: $("div#result"),
+            error: function(){
+                console.log("Error!");
+            },
+            success: function(result){
+                list = result['playlist'];
+                list_count = result['total'];
+                console.log(list, list_count);
+                console.log("Success!");
+                
+                html_list = ""
+                for(var i=0; i<list_count; i++){
+                        console.log(list[i]);
+                        list_ = list[i]
+                        html_list = html_list + list_+"<button class='btn' onclick=\"play('"+list_+"')\">재생</button><br>";
+                }
+
+                console.log(html_list);
+                document.getElementById("playlist").innerHTML = html_list;
+                count_msg = "<p id='playlist-count'> Total Music : "+list_count+"<p>"
+                document.getElementById("playlist-count").innerHTML = count_msg;
+            }})
+    }
+ function play(mp3){
+        $.ajax({type: 'POST', url: '/play-music', data:{music: mp3}, context: $("div#result"),
+            error: function(){
+                console.log("Error!");
+            },
+            success: function(result){
+                console.log(result);
+            }})
+    }
+
     function runCommand(command){
         $.ajax({type: 'POST', url: '/cmd', data: {command: command}, context: $("div#result"),
             error: function(){
                 var msg = '<p class="red label"><i class="icon-remove"></i> ' + command + '</p>';
                 this.html(msg)
+                console.log("Error!");
             },
             success: function(){
                 var msg = '<p class="green label"><i class="icon-ok"></i> ' + command + '</p>'
                 this.html(msg)
+                console.log("Success!");
             }})
     }
     function updateStatus(){
         $.ajax({url: '/status', dataType: 'json', context: $("div#status"), 
             error: function(){
-                var msg = '<p class="error">Connection to <code>cmus</code> cannot be established.</p>';
+                var msg = '<p class="error"><code>cmus</code>에 연결할 수 없습니다.</p>';
                 this.html(msg)
             },
             success: function(response){
@@ -115,7 +160,7 @@
                 if (response.artist != null & response.title != null & response.album != null & response.date != null)
                     {msg += response.artist + ': <strong>' + response.title + '</strong> (' + response.album + ', ' + response.date.substring(0,4) + ')'}
                 else if (response.artist != null & response.title != null & response.album != null)
-                    {msg += response.artist + ': <strong>' + response.title + '</strong> (' + response.album + ')'}
+                     {msg += response.artist + ': <strong>' + response.title + '</strong> (' + response.album + ')'}
                 else if (response.artist != null & response.title != null & response.date != null)
                     {msg += response.artist + ': <strong>' + response.title + '</strong> (' + response.date.substring(0,4) + ')'}
                 else if (response.artist != null & response.title != null)
@@ -150,3 +195,4 @@
 </script>
 </body>
 </html>
+

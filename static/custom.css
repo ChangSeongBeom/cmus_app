@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=PT+Serif');
+
+div#playlist-box {
+        border: 1px solid black;
+        height: 20%;
+        border-radius: 10px;
+        padding: 7px;
+        background-color: white;
+}
+
+li {
+        font-size: 10px;
+}
+
+li#title{
+        font-size: 14px;
+        font-family: 'PT Serif', serif;
+}
+
+li#artist{
+        font-size: 12px;
+        font-family: 'PT Serif', serif;
+
+}
+
+p#text{
+        padding: 6px;
+        margin-bottom: 0px;
+        font-size: 12px;
+        font-family: 'PT Serif', serif;
+}
+
+p#playlist-count{
+        margin-bottom: 0px;
+        font-family: 'PT Serif', serif;
+        font-size: 12px;
+}
+
